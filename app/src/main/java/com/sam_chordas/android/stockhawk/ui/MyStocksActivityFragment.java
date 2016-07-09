@@ -1,11 +1,11 @@
 package com.sam_chordas.android.stockhawk.ui;
 
-import android.app.Fragment;
-import android.app.LoaderManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -51,10 +51,11 @@ public class MyStocksActivityFragment extends Fragment implements LoaderManager.
     private static final int CURSOR_LOADER_ID = 0;
     private QuoteCursorAdapter mCursorAdapter;
     private Cursor mCursor;
+    private int mPosition;
     boolean isConnected;
 
     public interface Callback{
-        public void onItemSelected();
+        public void onItemSelected(Cursor cursor,int position);
     }
     public MyStocksActivityFragment(){
     }
@@ -95,6 +96,7 @@ public class MyStocksActivityFragment extends Fragment implements LoaderManager.
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -102,7 +104,6 @@ public class MyStocksActivityFragment extends Fragment implements LoaderManager.
         isConnected = activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
         View rootView = inflater.inflate(R.layout.fragment_my_stocks, container, false);
-//        setContentView(R.layout.activity_my_stocks);
         // The intent service is for executing immediate pulls from the Yahoo API
         // GCMTaskService can only schedule tasks, they cannot execute immediately
         mServiceIntent = new Intent(getActivity(), StockIntentService.class);
@@ -115,7 +116,7 @@ public class MyStocksActivityFragment extends Fragment implements LoaderManager.
                 networkToast();
             }
         }
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        final RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
 
@@ -123,8 +124,12 @@ public class MyStocksActivityFragment extends Fragment implements LoaderManager.
         recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(getActivity(),
                 new RecyclerViewItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View v, int position) {
-                        //TODO:
-                        // do something on item click
+                        Toast.makeText(getActivity(),"Moving to Detail view",Toast.LENGTH_SHORT).show();
+                        Cursor cursor = mCursorAdapter.getCursor();
+                        if (cursor != null) {
+                            ((Callback) getActivity()).onItemSelected(cursor,position);
+                        }
+                        mPosition = position;
                     }
                 }));
         recyclerView.setAdapter(mCursorAdapter);
@@ -193,7 +198,7 @@ public class MyStocksActivityFragment extends Fragment implements LoaderManager.
             GcmNetworkManager.getInstance(getActivity()).schedule(periodicTask);
         }
 
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return rootView;
     }
 
 

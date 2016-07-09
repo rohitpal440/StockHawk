@@ -73,7 +73,6 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
     } else{
       viewHolder.change.setText(cursor.getString(cursor.getColumnIndex("change")));
     }
-    DatabaseUtils.dumpCurrentRow(cursor);
     viewHolder.companyName.setText(cursor.getString(cursor.getColumnIndex("name")));
     viewHolder.dayLow.setText( mContext.getText(R.string.day_low) + cursor.getString(cursor.getColumnIndex("low")));
     viewHolder.dayHigh.setText(mContext.getText(R.string.day_high) + cursor.getString(cursor.getColumnIndex("high")));
@@ -84,6 +83,7 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
     c.moveToPosition(position);
     String symbol = c.getString(c.getColumnIndex(QuoteColumns.SYMBOL));
     mContext.getContentResolver().delete(QuoteProvider.Quotes.withSymbol(symbol), null, null);
+    mContext.getContentResolver().delete(QuoteProvider.ArchivedQuotes.withSymbol(symbol),null,null);
     notifyItemRemoved(position);
   }
 

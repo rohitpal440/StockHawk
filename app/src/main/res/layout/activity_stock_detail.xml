@@ -13,14 +13,12 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
     </android.support.v7.widget.Toolbar>
-
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_my_stocks"
-    android:name="com.sam_chordas.android.stockhawk.ui.MyStocksActivityFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.sam_chordas.android.stockhawk.ui.MyStocksActivity"
-    tools:layout="@layout/fragment_my_stocks" />
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/stock_detail_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.sam_chordas.android.stockhawk.ui.StockDetail"
+        tools:ignore="MergeRootFrame" />
 
 </LinearLayout>

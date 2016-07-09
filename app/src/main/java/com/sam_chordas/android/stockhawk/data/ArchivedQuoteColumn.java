@@ -14,7 +14,7 @@ public class ArchivedQuoteColumn {
     public static final String _ID = "_id";
     @DataType(DataType.Type.TEXT) @NotNull
     public static final String SYMBOL = "symbol";
-    @DataType(DataType.Type.TEXT) @NotNull
+    @DataType(DataType.Type.INTEGER) @NotNull
     public static final String DATE = "date";
     @DataType(DataType.Type.TEXT) @NotNull
     public static final String OPEN = "open";

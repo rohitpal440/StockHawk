@@ -2,23 +2,20 @@
 
   <!-- Base application theme. -->
   <style name="AppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
-      <item name="colorPrimary">@color/material_grey_100</item>
-      <item name="colorPrimaryDark">@color/material_grey_300</item>
-      <item name="colorAccent">@color/material_blue_700</item>
+      <item name="colorPrimary">@color/material_blue_500</item>
+      <item name="colorPrimaryDark">@color/material_blue_700</item>
+      <item name="colorAccent">@color/material_blue_accent</item>
       <!-- Customize your theme here. -->
       <item name="toolbarStyle">@style/Toolbar</item>
       <item name="android:windowActionBar">false</item>
       <item name="android:windowBackground">@color/material_grey_50</item>
-      <item name="android:textColorPrimary">@color/material_grey_700</item>
-      <item name="android:navigationBarColor">@color/material_grey_500</item>
-      <item name="android:textColorSecondary">@android:color/white</item>
   </style>
     <style name="Toolbar" parent="Widget.AppCompat.Toolbar">
         <item name="android:background">?attr/colorPrimary</item>
         <item name="popupTheme">@style/Theme.AppCompat.Light</item>
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 
   <style name="PercentChangeTextStyle">
     <item name="android:textSize">20sp</item>

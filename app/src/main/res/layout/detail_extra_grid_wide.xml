@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="3dp"
+    android:layout_marginStart="3dp"
+    android:layout_marginRight="3dp"
+    android:layout_marginEnd="3dp"
+    android:layout_marginTop="3dp"
+    android:layout_marginBottom="3dp"
+    app:cardBackgroundColor="#ffffff"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.GridLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        app:rowCount="11"
+        app:columnCount="2">
+
+
+        <TextView
+            android:text="YHOO"
+            android:id="@+id/stock_symbol"
+            android:fontFamily="Roboto-regular"
+            style="@style/StockSymbolTextStyle"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            app:layout_columnWeight="2"
+            android:gravity="center"
+            android:textColor="@android:color/black"
+            app:layout_gravity="center_vertical"
+            app:layout_columnSpan="2"
+            />
+
+        <TextView
+            android:text="Yahoo Inc."
+            style="@style/StockNameTextStyle"
+            android:id="@+id/company_name"
+            android:layout_width="0dp"
+            app:layout_columnSpan="2"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="2"
+            android:gravity="center"
+            app:layout_gravity="center_vertical"
+        />
+
+        <android.support.v7.widget.Space
+            android:layout_height="16dp"
+            android:layout_width="0dp"
+            app:layout_columnSpan="2"
+            app:layout_columnWeight="2"
+            app:layout_rowWeight="1" />
+
+        <TextView
+            android:id="@+id/bid_price"
+            style="@style/BidPriceTextStyle"
+            android:text="1000.0"
+            android:layout_width="0dp"
+            app:layout_columnWeight="1"
+            android:textColor="@android:color/black"
+            android:gravity="center"
+            app:layout_gravity="center_vertical"/>
+        <TextView
+            android:id="@+id/change"
+            style="@style/PercentChangeTextStyle"
+            android:background="@drawable/percent_change_pill"
+            android:text="100%"
+            app:paddingStart="3dp"
+            app:paddingEnd="3dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:layout_width="0dp"
+            android:gravity="center"
+            app:layout_columnWeight="1"
+            app:layout_gravity="center_vertical"/>
+
+        <android.support.v7.widget.Space
+            android:layout_height="16dp"
+            android:layout_width="0dp"
+            app:layout_columnSpan="2"
+            app:layout_columnWeight="2"
+            app:layout_rowWeight="1" />
+
+        <TextView
+            android:id="@+id/stock_detail_date"
+            android:text="Jul 01, 2016"
+            android:fontFamily="Roboto-regular"
+            style="@style/StockSymbolTextStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="2"
+            app:layout_columnSpan="2"
+            android:gravity="center"
+            android:textColor="@android:color/black"
+            app:layout_gravity="center_vertical"
+            />
+
+        <android.support.v7.widget.Space
+            android:layout_height="16dp"
+            android:layout_width="0dp"
+            app:layout_columnSpan="2"
+            app:layout_columnWeight="2"
+            app:layout_rowWeight="1" />
+
+        <TextView
+            android:text="Open\n90"
+            android:id="@+id/open"
+            android:fontFamily="sans-serif"
+            android:textColor="#424242"
+            android:textSize="16sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="2"
+            android:gravity="center"
+            app:layout_gravity="center_vertical"
+            android:padding="2dp"
+            />
+        <TextView
+            android:text="Close\n90"
+            android:id="@+id/close"
+            android:fontFamily="sans-serif"
+            android:textColor="#424242"
+            android:textSize="16sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="2"
+            android:gravity="center"
+            app:layout_gravity="center_vertical"
+            android:padding="2dp"
+            />
+
+        <TextView
+            android:text="High\n110"
+            android:id="@+id/day_low"
+            android:fontFamily="sans-serif"
+            android:textColor="#424242"
+            android:textSize="16sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="2"
+            android:gravity="center"
+            app:layout_gravity="center_vertical"
+            android:padding="2dp"
+            />
+
+
+        <TextView
+            android:text="Low\n80"
+            android:id="@+id/day_high"
+            android:fontFamily="sans-serif"
+            android:textColor="#424242"
+            android:textSize="16sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="2"
+            android:gravity="center"
+            app:layout_gravity="center_vertical"
+            android:padding="2dp"
+            />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="StockExchange : NMS"
+            style="@style/StockExchangeTextStyle"
+            android:gravity="end"
+            app:layout_columnWeight="2"
+            app:layout_columnSpan="2"
+            android:padding="2dp"
+            app:layout_gravity="center_vertical" />
+
+
+    </android.support.v7.widget.GridLayout>
+</android.support.v7.widget.CardView>
+
+
+
+

@@ -23,6 +23,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by sam_chordas on 9/30/15.
@@ -35,8 +37,9 @@ public class StockTaskService extends GcmTaskService{
   private OkHttpClient client = new OkHttpClient();
   private Context mContext;
   private StringBuilder mStoredSymbols = new StringBuilder();
+  private ArrayList mStoredSybolsBeforeUpdate;
   private boolean isUpdate;
-
+  private final String BASE_URL = "https://query.yahooapis.com/v1/public/yql?q=";
   public StockTaskService(){}
 
   public StockTaskService(Context context){
@@ -57,11 +60,15 @@ public class StockTaskService extends GcmTaskService{
     if (mContext == null){
       mContext = this;
     }
-    StringBuilder urlStringBuilder = new StringBuilder();
+    StringBuilder stockQuotesUrlStringBuilder = new StringBuilder();
+    StringBuilder stockHistoryUrlStringBuilder = new StringBuilder();
     try{
       // Base URL for the Yahoo query
-      urlStringBuilder.append("https://query.yahooapis.com/v1/public/yql?q=");
-      urlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.quotes where symbol "
+      stockQuotesUrlStringBuilder.append(BASE_URL);
+      stockHistoryUrlStringBuilder.append(BASE_URL);
+      stockQuotesUrlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.quotes where symbol "
+        + "in (", "UTF-8"));
+      stockHistoryUrlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.historicaldata where symbol "
         + "in (", "UTF-8"));
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
@@ -74,22 +81,27 @@ public class StockTaskService extends GcmTaskService{
       if (initQueryCursor.getCount() == 0 || initQueryCursor == null){
         // Init task. Populates DB with quotes for the symbols seen below
         try {
-          urlStringBuilder.append(
+          stockQuotesUrlStringBuilder.append(
+              URLEncoder.encode("\"YHOO\",\"AAPL\",\"GOOG\",\"MSFT\")", "UTF-8"));
+          stockHistoryUrlStringBuilder.append(
               URLEncoder.encode("\"YHOO\",\"AAPL\",\"GOOG\",\"MSFT\")", "UTF-8"));
         } catch (UnsupportedEncodingException e) {
           e.printStackTrace();
         }
       } else if (initQueryCursor != null){
-        DatabaseUtils.dumpCursor(initQueryCursor);
+
         initQueryCursor.moveToFirst();
+        mStoredSybolsBeforeUpdate = new ArrayList();
         for (int i = 0; i < initQueryCursor.getCount(); i++){
+          mStoredSybolsBeforeUpdate.add(initQueryCursor.getString(initQueryCursor.getColumnIndex("symbol")));
           mStoredSymbols.append("\""+
               initQueryCursor.getString(initQueryCursor.getColumnIndex("symbol"))+"\",");
           initQueryCursor.moveToNext();
         }
         mStoredSymbols.replace(mStoredSymbols.length() - 1, mStoredSymbols.length(), ")");
         try {
-          urlStringBuilder.append(URLEncoder.encode(mStoredSymbols.toString(), "UTF-8"));
+          stockQuotesUrlStringBuilder.append(URLEncoder.encode(mStoredSymbols.toString(), "UTF-8"));
+          stockHistoryUrlStringBuilder.append(URLEncoder.encode(mStoredSymbols.toString(), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
           e.printStackTrace();
         }
@@ -99,24 +111,39 @@ public class StockTaskService extends GcmTaskService{
       // get symbol from params.getExtra and build query
       String stockInput = params.getExtras().getString("symbol");
       try {
-        urlStringBuilder.append(URLEncoder.encode("\""+stockInput+"\")", "UTF-8"));
+        stockQuotesUrlStringBuilder.append(URLEncoder.encode("\""+stockInput+"\")", "UTF-8"));
+        stockHistoryUrlStringBuilder.append(URLEncoder.encode("\""+stockInput+"\")", "UTF-8"));
       } catch (UnsupportedEncodingException e){
         e.printStackTrace();
       }
     }
     // finalize the URL for the API query.
-    urlStringBuilder.append("&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables."
+    try {
+      Log.d(LOG_TAG,"Date before 1 Year " + Utils.getDateFromNow("yyyy-MM-dd",-365));
+      stockHistoryUrlStringBuilder.append("%20and%20startDate%20%3D%20%22" + Utils.getDateFromNow("yyyy-MM-dd",-365) + "%22%20and%20endDate%20%3D%20%22" + Utils.getDateFromNow("yyyy-MM-dd",0) + "%22");
+
+    } catch (Exception e){
+      Log.e(LOG_TAG,"Unable to Encode date for History data Properly");
+    }
+    stockQuotesUrlStringBuilder.append("&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables."
+        + "org%2Falltableswithkeys&callback=");
+    stockHistoryUrlStringBuilder.append("&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables."
         + "org%2Falltableswithkeys&callback=");
 
-    String urlString;
-    String getResponse;
+
+    String stockQuotesUrlString;
+    String stockQuotesHistoryUrlString;
+    String getResponseQuotes;
+    String getResponseQuotesHistory;
     int result = GcmNetworkManager.RESULT_FAILURE;
 
-    if (urlStringBuilder != null){
-      urlString = urlStringBuilder.toString();
-      Log.d(LOG_TAG,urlString);
+    if (stockQuotesUrlStringBuilder != null){
+      stockQuotesUrlString = stockQuotesUrlStringBuilder.toString();
+      stockQuotesHistoryUrlString = stockHistoryUrlStringBuilder.toString();
+      Log.d(LOG_TAG,stockQuotesHistoryUrlString);
       try{
-        getResponse = fetchData(urlString);
+        getResponseQuotes = fetchData(stockQuotesUrlString);
+        getResponseQuotesHistory = fetchData(stockQuotesHistoryUrlString);
         result = GcmNetworkManager.RESULT_SUCCESS;
         try {
           ContentValues contentValues = new ContentValues();
@@ -127,10 +154,20 @@ public class StockTaskService extends GcmTaskService{
                 null, null);
           }
           try{
-            JSONObject jsonObject = new JSONObject(getResponse);
+            JSONObject jsonObject = new JSONObject(getResponseQuotes);
 
             mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
                     Utils.quoteJsonToContentVals(jsonObject));
+            jsonObject = new JSONObject(getResponseQuotesHistory);
+            if(mStoredSybolsBeforeUpdate != null && mStoredSybolsBeforeUpdate.size()>0){
+              for (int i =0;i< mStoredSybolsBeforeUpdate.size();i++){
+                String symbol = mStoredSybolsBeforeUpdate.get(i).toString();
+                Log.d(LOG_TAG,"Deleting stored symbol " + symbol);
+                mContext.getContentResolver().delete(QuoteProvider.ArchivedQuotes.withSymbol(symbol),null,null);
+              }
+            }
+            mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
+                    Utils.archivedQuoteJsonToContentVals(Utils.getQuoteJsonArray(jsonObject)));
           }catch (JSONException e){
             Log.e(LOG_TAG,"Invalid Response");
           }
@@ -146,4 +183,9 @@ public class StockTaskService extends GcmTaskService{
     return result;
   }
 
+
+
 }
+
+//https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20in%20(%20%22YHOO%22%2C%22AAPL%22)%20and%20startDate%20%3D%20%222015-06-11%22%20and%20endDate%20%3D%20%222016-06-10%22&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=
+//https://query.yahooapis.com/v1/public/yql?q=select+*+from+yahoo.finance.quotes+where+symbol+in+%28%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22%29&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=

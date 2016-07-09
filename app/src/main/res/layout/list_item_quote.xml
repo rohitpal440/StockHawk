@@ -64,12 +64,12 @@
         <TextView
             android:text="900.0"
             android:fontFamily="sans-serif"
+            android:textColor="#424242"
             android:textSize="16sp"
             android:id="@+id/day_low"
             android:layout_width="0dp"
             app:layout_columnWeight="2"
             android:gravity="center"
-            android:textColor="#424242"
             app:layout_gravity="center_vertical"/>
         <TextView
             android:text="1000.0"

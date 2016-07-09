@@ -13,4 +13,5 @@
     <string name="day_high">Day\'s High ↟\n</string>
     <string name="network_toast">Uh-oh! This app requires an internet connection</string>
     <string name="title_activity_my_stocks">MyStocksActivity</string>
+    <string name="title_activity_stock_detail">StockDetail</string>
 </resources>
