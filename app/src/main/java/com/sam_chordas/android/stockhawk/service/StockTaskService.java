@@ -119,10 +119,11 @@ public class StockTaskService extends GcmTaskService{
     }
     // finalize the URL for the API query.
     try {
-      Log.d(LOG_TAG,"Date before 1 Year " + Utils.getDateFromNow("yyyy-MM-dd",-365));
-      stockHistoryUrlStringBuilder.append("%20and%20startDate%20%3D%20%22" + Utils.getDateFromNow("yyyy-MM-dd",-365) + "%22%20and%20endDate%20%3D%20%22" + Utils.getDateFromNow("yyyy-MM-dd",0) + "%22");
+      Log.d(LOG_TAG,"Date before 1 Year "+Utils.getDateFromNow("yyyy-MM-dd",-365));
+      stockHistoryUrlStringBuilder.append(
+              URLEncoder.encode(" and startDate=\"" + Utils.getDateFromNow("yyyy-MM-dd",-365)+"\" and endDate = \"" + Utils.getDateFromNow("yyyy-MM-dd",0) + "\"","UTF-8"));
 
-    } catch (Exception e){
+    } catch (UnsupportedEncodingException e){
       Log.e(LOG_TAG,"Unable to Encode date for History data Properly");
     }
     stockQuotesUrlStringBuilder.append("&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables."
