@@ -6,7 +6,13 @@ import android.util.Log;
 import com.sam_chordas.android.stockhawk.data.ArchivedQuoteColumn;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,7 +30,45 @@ public class Utils {
 
   private static String LOG_TAG = Utils.class.getSimpleName();
 
+  public static final String BASE_URL = "https://query.yahooapis.com/v1/public/yql?q=";
+
   public static boolean showPercent = true;
+
+  public static String fetchData(String url) throws IOException {
+    OkHttpClient client = new OkHttpClient();
+    Request request = new Request.Builder()
+            .url(url)
+            .build();
+    Response response = client.newCall(request).execute();
+    return response.body().string();
+  }
+
+  public static String fetchArchivedQuoteWithSymbol(String symbol){
+    StringBuilder stockHistoryUrlStringBuilder = new StringBuilder();
+    stockHistoryUrlStringBuilder.append(Utils.BASE_URL);
+    String response = null;
+    try {
+      stockHistoryUrlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.historicaldata" +
+              " where symbol = "+"\""+symbol+"\""
+              +" and startDate = \"" + Utils.getDateFromNow("yyyy-MM-dd",-365)
+              +"\" and endDate = \"" + Utils.getDateFromNow("yyyy-MM-dd",0) + "\"", "UTF-8"));
+      stockHistoryUrlStringBuilder.append("&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables."
+              + "org%2Falltableswithkeys&callback=");
+
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+
+    try {
+      response = Utils.fetchData(stockHistoryUrlStringBuilder.toString());
+    } catch (IOException e) {
+//      result = GcmNetworkManager.RESULT_FAILURE;
+      e.printStackTrace();
+    }
+//    Log.d(LOG_TAG,"Update :"+isUpdate +" History Url for symbol "+symbol+" :"+stockHistoryUrlStringBuilder.toString());
+//    Log.d(LOG_TAG,"FETCHED DATA is \n" + response);
+    return response;
+  }
 
   public static ArrayList archivedQuoteJsonToContentVals(JSONArray quote){
     ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>();
@@ -38,20 +82,21 @@ public class Utils {
     } catch (JSONException e){
       Log.e(LOG_TAG,"Error in Parsing Json Array Quotes");
     }
+    Log.d(LOG_TAG,"Finshed BatchOperationBuild Archived quotes, ready to insert");
     return batchOperations;
   }
 
 
   public static JSONArray getQuoteJsonArray(JSONObject jsonObject){
     JSONArray quoteJsonArray = null;
-    Log.d(LOG_TAG," "+jsonObject);
+//    Log.d(LOG_TAG,"Response to Historical Data: \n\n"+jsonObject);
     try{
       if (jsonObject != null && jsonObject.length() != 0){
         jsonObject = jsonObject.getJSONObject("query").getJSONObject("results");
         quoteJsonArray = jsonObject.getJSONArray("quote");
       }
     }catch (JSONException e){
-      Log.d(LOG_TAG,"Unable to parse Json Quote Array");
+      Log.e(LOG_TAG,"getQuoteJsonArray()\n Error: Invalid Response: Unable to parse Json");
     }
     return quoteJsonArray;
   }
@@ -141,13 +186,13 @@ public class Utils {
     long date = 0;
     try{
       date = getMillisFromDateString(jsonObject.getString("Date"));
-
       builder.withValue(ArchivedQuoteColumn.SYMBOL,jsonObject.getString("Symbol"));
       builder.withValue(ArchivedQuoteColumn.DATE,date);
       builder.withValue(ArchivedQuoteColumn.OPEN,jsonObject.getString("Open"));
       builder.withValue(ArchivedQuoteColumn.HIGH,jsonObject.getString("High"));
       builder.withValue(ArchivedQuoteColumn.LOW,jsonObject.getString("Low"));
       builder.withValue(ArchivedQuoteColumn.CLOSE,jsonObject.getString("Close"));
+      builder.withValue(ArchivedQuoteColumn.ISCURRENT, 1);
     }catch (JSONException e){
       Log.e(LOG_TAG,"Unable to Parse individual object");
     }

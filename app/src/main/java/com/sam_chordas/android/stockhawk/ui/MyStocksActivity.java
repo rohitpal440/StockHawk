@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
 import com.sam_chordas.android.stockhawk.R;
+import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 
 public class MyStocksActivity extends AppCompatActivity implements MyStocksActivityFragment.Callback{
 
@@ -25,10 +26,14 @@ public class MyStocksActivity extends AppCompatActivity implements MyStocksActiv
     @Override
     public void onItemSelected(Cursor cursor, int position) {
         if(cursor.moveToPosition(position)){
-            Toast.makeText(this,"Got the valid Cursor",Toast.LENGTH_SHORT).show();
-//            DatabaseUtils.dumpCurrentRow(cursor);
+
             Intent intent = new Intent(this,StockDetail.class);
-            intent.putExtra("symbol","Test" );
+            intent.putExtra("symbol",cursor.getString(cursor.getColumnIndex(QuoteColumns.SYMBOL)));
+            intent.putExtra("name", cursor.getString(cursor.getColumnIndex(QuoteColumns.NAME)));
+            intent.putExtra("currentHigh", cursor.getString(cursor.getColumnIndex(QuoteColumns.HIGH)));
+            intent.putExtra("currentLow", cursor.getString(cursor.getColumnIndex(QuoteColumns.LOW)));
+            intent.putExtra("todayBid", cursor.getString(cursor.getColumnIndex(QuoteColumns.BIDPRICE)));
+            intent.putExtra("todayChange", cursor.getString(cursor.getColumnIndex(QuoteColumns.CHANGE)));
             startActivity(intent);
 
         } else {

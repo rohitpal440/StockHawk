@@ -24,4 +24,6 @@ public class ArchivedQuoteColumn {
     public static final String LOW = "low";
     @DataType(DataType.Type.TEXT) @NotNull
     public static final String CLOSE = "close";
+    @DataType(DataType.Type.INTEGER) @NotNull
+    public static final String ISCURRENT = "is_current";
 }

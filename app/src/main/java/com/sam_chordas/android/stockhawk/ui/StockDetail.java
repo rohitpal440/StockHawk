@@ -14,7 +14,6 @@ public class StockDetail extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stock_detail);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
@@ -23,13 +22,11 @@ public class StockDetail extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
 
-//            Bundle arguments = new Bundle();
-//            arguments.putParcelable(DetailFragment.DETAIL_URI, getIntent().getData());
-
-//            StockDetailFragment fragment = new StockDetailFragment();
-//            fragment.setArguments(arguments);
-
-            getSupportFragmentManager().beginTransaction().add(R.id.stock_detail_container,new StockDetailFragment()).commit();
+            Bundle arguments = new Bundle();
+            arguments.putAll(getIntent().getExtras());
+            StockDetailFragment fragment = new StockDetailFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction().add(R.id.stock_detail_container,fragment).commit();
         }
     }
 
